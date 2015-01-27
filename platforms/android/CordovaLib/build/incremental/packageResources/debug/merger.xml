@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="E:\work\iglu\platforms\android\CordovaLib\res" />
+        <source path="E:\work\iglu\platforms\android\CordovaLib\build\res\rs\debug" />
+        <source path="E:\work\iglu\platforms\android\CordovaLib\build\res\generated\debug" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="E:\work\iglu\platforms\android\CordovaLib\src\debug\res" />
+    </dataSet>
+
+</merger>
