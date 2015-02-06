@@ -4,5 +4,10 @@
     <string name="app_name">Iglu</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">LOREM\nIPSUM</string>
+    <string name="morning">שחרית</string>
+    <string name="morning_prayer">ברכות הבוקר</string>
+    <string name="shma">שמע ישראל</string>
+    <string name="eighteen">שמונה עשרה</string>
+    <string name="we_must_praise">עלינו לשבח</string>
 
 </resources>
