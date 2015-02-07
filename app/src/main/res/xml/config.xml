@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--TODO add xsd-->
+<videos xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".VideoListActivity">
+    <video
+        id="shacharit"
+        image="@drawable/shacharit"
+        title="@string/shacharit">
+        <subHeaders>
+            <!--The order here should be backwards :( -->
+            <subHeader value="@string/eighteen" />
+            <subHeader value="@string/shma" />
+            <subHeader value="@string/morning_prayer" />
+        </subHeaders>
+    </video>
+
+    <video
+        id="minha"
+        image="@drawable/minha"
+        title="@string/minha">
+        <subHeaders>
+            <!--The order here should be backwards :( -->
+            <subHeader value="@string/we_must_praise" />
+            <subHeader value="@string/eighteen" />
+            <subHeader value="@string/ashrei" />
+        </subHeaders>
+    </video>
+
+    <video
+        id="arvit"
+        image="@drawable/arvit"
+        title="@string/arvit">
+        <subHeaders>
+            <!--The order here should be backwards :( -->
+            <subHeader value="@string/we_must_praise" />
+            <subHeader value="@string/eighteen" />
+            <subHeader value="@string/ashrei" />
+            <subHeader value="@string/shma" />
+        </subHeaders>
+    </video>
+</videos>

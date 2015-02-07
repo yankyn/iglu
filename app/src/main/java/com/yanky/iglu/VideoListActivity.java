@@ -1,161 +1,127 @@
 package com.yanky.iglu;
 
-import com.yanky.iglu.util.SystemUiHider;
-
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.os.Build;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
-import android.view.MotionEvent;
+import android.support.v7.widget.CardView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import org.xmlpull.v1.XmlPullParserException;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
- */
+import java.io.IOException;
+
 public class VideoListActivity extends ActionBarActivity {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = false;
+
+    public final static String EXTRA_MESSAGE = "extra";
+
+    /* --- Protected Methods --- */
 
     /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
+     * Creates a card tag in the provided linear view, with the info stored in the open xml tag.
+     *
+     * @param inflater      The inflater used to inflate the card tag.
+     * @param videoCardList The linear view in which to store the card.
+     * @param videosXml     The xml from which to read the current tag.
+     * @return An open layout to which sub text tags need to be written.
      */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+    protected LinearLayout handleVideoTag(LayoutInflater inflater, LinearLayout videoCardList,
+                                          XmlResourceParser videosXml) {
+        Resources resources = this.getResources();
+        // <Card>
+        CardView cardView = (CardView) inflater.inflate(R.layout.video_card, videoCardList, false);
+        final VideoListActivity activity = this;
+        cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(activity, VideoActivity.class);
+                intent.putExtra(EXTRA_MESSAGE, "some message!");
+                startActivity(intent);
+            }
+        });
+        videoCardList.addView(cardView);
+        // <Horizontal Layout>
+        LinearLayout cardHorizontalLayout = (LinearLayout)
+                inflater.inflate(R.layout.video_card_horizontal, cardView, false);
+        cardView.addView(cardHorizontalLayout);
+        // <Vertical Layout>
+        LinearLayout cardVerticalTextLayout = (LinearLayout)
+                inflater.inflate(R.layout.video_card_vertical_text, cardHorizontalLayout, false);
+        cardHorizontalLayout.addView(cardVerticalTextLayout);
+        // <Text>
+        TextView cardTitle = (TextView) inflater.inflate(R.layout.video_card_title_text,
+                cardVerticalTextLayout, false);
+        cardTitle.setText(resources.getString(videosXml.getAttributeResourceValue(null, "title", -1)));
+        cardVerticalTextLayout.addView(cardTitle);
+        // <Sub Text Layout>
+        LinearLayout subTextLayout = (LinearLayout) inflater.inflate(
+                R.layout.video_card_sub_text_layout, cardVerticalTextLayout, false);
+        cardVerticalTextLayout.addView(subTextLayout);
+
+        // <Image>
+        int imageId = videosXml.getAttributeResourceValue(null, "image", -1);
+        ImageView cardImage = (ImageView) inflater.inflate(R.layout.video_card_image,
+                cardHorizontalLayout, false);
+        cardImage.setImageResource(imageId);
+        cardHorizontalLayout.addView(cardImage);
+        // </Image>
+
+        return subTextLayout;
+    }
 
     /**
-     * If set, will toggle the system UI visibility upon interaction. Otherwise,
-     * will show the system UI visibility upon interaction.
+     * Creates A text view in the provided linear layout with the data stored in the open xml tag.
+     *
+     * @param inflater          The inflater used to inflate the card tag.
+     * @param openSubTextLayout The linear view in which to store the card.
+     * @param videosXml         The xml from which to read the current tag.
      */
-    private static final boolean TOGGLE_ON_CLICK = true;
-
-    /**
-     * The flags to pass to {@link SystemUiHider#getInstance}.
-     */
-    private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-
-    /**
-     * The instance of the {@link SystemUiHider} for this activity.
-     */
-    private SystemUiHider mSystemUiHider;
+    protected void handleSubTextTag(LayoutInflater inflater, LinearLayout openSubTextLayout,
+                                    XmlResourceParser videosXml) {
+        Resources resources = this.getResources();
+        TextView subText = (TextView) inflater.inflate(R.layout.video_card_sub_text,
+                openSubTextLayout, false);
+        subText.setText(resources.getString(videosXml.getAttributeResourceValue(null, "value", -1)));
+        openSubTextLayout.addView(subText);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_video_list);
 
-        final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final View contentView = findViewById(R.id.fullscreen_content);
+        Resources resources = this.getResources();
+        XmlResourceParser videosXml = resources.getXml(R.xml.config);
 
-        // Set up an instance of SystemUiHider to control the system UI for
-        // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
-        mSystemUiHider.setup();
-        mSystemUiHider
-                .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-                    // Cached values.
-                    int mControlsHeight;
-                    int mShortAnimTime;
 
-                    @Override
-                    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-                    public void onVisibilityChange(boolean visible) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-                            // If the ViewPropertyAnimator API is available
-                            // (Honeycomb MR2 and later), use it to animate the
-                            // in-layout UI controls at the bottom of the
-                            // screen.
-                            if (mControlsHeight == 0) {
-                                mControlsHeight = controlsView.getHeight();
-                            }
-                            if (mShortAnimTime == 0) {
-                                mShortAnimTime = getResources().getInteger(
-                                        android.R.integer.config_shortAnimTime);
-                            }
-                            controlsView.animate()
-                                    .translationY(visible ? 0 : mControlsHeight)
-                                    .setDuration(mShortAnimTime);
-                        } else {
-                            // If the ViewPropertyAnimator APIs aren't
-                            // available, simply show or hide the in-layout UI
-                            // controls.
-                            controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
-                        }
+        final LinearLayout videoCardList = (LinearLayout) findViewById(R.id.videoCardList);
+        LayoutInflater inflater = this.getLayoutInflater();
 
-                        if (visible && AUTO_HIDE) {
-                            // Schedule a hide().
-                            delayedHide(AUTO_HIDE_DELAY_MILLIS);
-                        }
-                    }
-                });
+        LinearLayout openSubTextLayout = null;
 
-        // Set up the user interaction to manually show or hide the system UI.
-        contentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (TOGGLE_ON_CLICK) {
-                    mSystemUiHider.toggle();
-                } else {
-                    mSystemUiHider.show();
+        try {
+            int event = videosXml.next();
+            while (event != XmlResourceParser.END_DOCUMENT) {
+                if (event == XmlResourceParser.START_TAG && videosXml.getName().equals("video")) {
+                    openSubTextLayout = handleVideoTag(inflater, videoCardList, videosXml);
+                } else if (event == XmlResourceParser.START_TAG && videosXml.getName().equals("subHeader")) {
+                    handleSubTextTag(inflater, openSubTextLayout, videosXml);
+                } else if (event == XmlResourceParser.END_TAG && videosXml.getName().equals("video")) {
+                    openSubTextLayout = null;
                 }
+                event = videosXml.next();
             }
-        });
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-//        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-//        delayedHide(100);
-    }
-
-
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
+        } catch (XmlPullParserException | IOException e) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.failed_to_start)
+                    .setTitle(R.string.failed_to_start_title);
+            builder.create();
         }
-    };
-
-    Handler mHideHandler = new Handler();
-    Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mSystemUiHider.hide();
-        }
-    };
-
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
-    private void delayedHide(int delayMillis) {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 }
