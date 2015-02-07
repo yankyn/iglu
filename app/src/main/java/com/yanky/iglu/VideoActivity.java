@@ -12,6 +12,7 @@ public class VideoActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         // Get the message from the intent
         Intent intent = getIntent();
         String message = intent.getStringExtra(VideoListActivity.EXTRA_MESSAGE);
