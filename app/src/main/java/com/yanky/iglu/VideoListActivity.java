@@ -3,7 +3,6 @@ package com.yanky.iglu;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.CardView;
@@ -19,7 +18,7 @@ import java.io.IOException;
 
 public class VideoListActivity extends ActionBarActivity {
 
-    public final static String EXTRA_MESSAGE = "extra";
+    public final static String VIDEO_ID = "videoId";
 
     /* --- Protected Methods --- */
 
@@ -28,23 +27,25 @@ public class VideoListActivity extends ActionBarActivity {
      *
      * @param inflater      The inflater used to inflate the card tag.
      * @param videoCardList The linear view in which to store the card.
-     * @param videosXml     The xml from which to read the current tag.
      * @return An open layout to which sub text tags need to be written.
      */
-    protected LinearLayout handleVideoTag(LayoutInflater inflater, LinearLayout videoCardList,
-                                          XmlResourceParser videosXml) {
-        Resources resources = this.getResources();
+    protected LinearLayout handleVideo(IVideo video, LinearLayout videoCardList,
+                                       LayoutInflater inflater) {
         // <Card>
         CardView cardView = (CardView) inflater.inflate(R.layout.video_card, videoCardList, false);
+
+        // Button listener
         final VideoListActivity activity = this;
+        final String videoId = video.getId();
         cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(activity, VideoActivity.class);
-                intent.putExtra(EXTRA_MESSAGE, "some message!");
+                intent.putExtra(VIDEO_ID, videoId);
                 startActivity(intent);
             }
         });
+
         videoCardList.addView(cardView);
         // <Horizontal Layout>
         LinearLayout cardHorizontalLayout = (LinearLayout)
@@ -57,15 +58,19 @@ public class VideoListActivity extends ActionBarActivity {
         // <Text>
         TextView cardTitle = (TextView) inflater.inflate(R.layout.video_card_title_text,
                 cardVerticalTextLayout, false);
-        cardTitle.setText(resources.getString(videosXml.getAttributeResourceValue(null, "title", -1)));
+        cardTitle.setText(video.getTitle());
         cardVerticalTextLayout.addView(cardTitle);
         // <Sub Text Layout>
         LinearLayout subTextLayout = (LinearLayout) inflater.inflate(
                 R.layout.video_card_sub_text_layout, cardVerticalTextLayout, false);
         cardVerticalTextLayout.addView(subTextLayout);
 
+        for (IVideoPart part : video.getAllPartsInOrder()) {
+            handleVideoPart(part, subTextLayout, inflater);
+        }
+
         // <Image>
-        int imageId = videosXml.getAttributeResourceValue(null, "image", -1);
+        int imageId = video.getImage();
         ImageView cardImage = (ImageView) inflater.inflate(R.layout.video_card_image,
                 cardHorizontalLayout, false);
         cardImage.setImageResource(imageId);
@@ -80,14 +85,12 @@ public class VideoListActivity extends ActionBarActivity {
      *
      * @param inflater          The inflater used to inflate the card tag.
      * @param openSubTextLayout The linear view in which to store the card.
-     * @param videosXml         The xml from which to read the current tag.
      */
-    protected void handleSubTextTag(LayoutInflater inflater, LinearLayout openSubTextLayout,
-                                    XmlResourceParser videosXml) {
-        Resources resources = this.getResources();
+    protected void handleVideoPart(IVideoPart part, LinearLayout openSubTextLayout,
+                                   LayoutInflater inflater) {
         TextView subText = (TextView) inflater.inflate(R.layout.video_card_sub_text,
                 openSubTextLayout, false);
-        subText.setText(resources.getString(videosXml.getAttributeResourceValue(null, "value", -1)));
+        subText.setText(part.getName());
         openSubTextLayout.addView(subText);
     }
 
@@ -95,29 +98,15 @@ public class VideoListActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_list);
-
         Resources resources = this.getResources();
-        XmlResourceParser videosXml = resources.getXml(R.xml.config);
-
-
         final LinearLayout videoCardList = (LinearLayout) findViewById(R.id.videoCardList);
         LayoutInflater inflater = this.getLayoutInflater();
-
-        LinearLayout openSubTextLayout = null;
-
         try {
-            int event = videosXml.next();
-            while (event != XmlResourceParser.END_DOCUMENT) {
-                if (event == XmlResourceParser.START_TAG && videosXml.getName().equals("video")) {
-                    openSubTextLayout = handleVideoTag(inflater, videoCardList, videosXml);
-                } else if (event == XmlResourceParser.START_TAG && videosXml.getName().equals("subHeader")) {
-                    handleSubTextTag(inflater, openSubTextLayout, videosXml);
-                } else if (event == XmlResourceParser.END_TAG && videosXml.getName().equals("video")) {
-                    openSubTextLayout = null;
-                }
-                event = videosXml.next();
+            VideoRepository repository = VideoRepository.getInstance(resources);
+            for (IVideo video : repository.getAllVideosInOrder()) {
+                handleVideo(video, videoCardList, inflater);
             }
-        } catch (XmlPullParserException | IOException e) {
+        } catch (IOException | XmlPullParserException e) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.failed_to_start)
                     .setTitle(R.string.failed_to_start_title);

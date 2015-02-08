@@ -5,37 +5,38 @@
     <video
         id="shacharit"
         image="@drawable/shacharit"
-        title="@string/shacharit">
-        <subHeaders>
+        title="@string/shacharit"
+        video="@raw/shacharit">
+        <parts>
             <!--The order here should be backwards :( -->
-            <subHeader value="@string/eighteen" />
-            <subHeader value="@string/shma" />
-            <subHeader value="@string/morning_prayer" />
-        </subHeaders>
+            <part value="@string/eighteen" />
+            <part value="@string/shma" />
+            <part value="@string/morning_prayer" />
+        </parts>
     </video>
 
     <video
         id="minha"
         image="@drawable/minha"
         title="@string/minha">
-        <subHeaders>
+        <parts>
             <!--The order here should be backwards :( -->
-            <subHeader value="@string/we_must_praise" />
-            <subHeader value="@string/eighteen" />
-            <subHeader value="@string/ashrei" />
-        </subHeaders>
+            <part value="@string/we_must_praise" />
+            <part value="@string/eighteen" />
+            <part value="@string/ashrei" />
+        </parts>
     </video>
 
     <video
         id="arvit"
         image="@drawable/arvit"
         title="@string/arvit">
-        <subHeaders>
+        <parts>
             <!--The order here should be backwards :( -->
-            <subHeader value="@string/we_must_praise" />
-            <subHeader value="@string/eighteen" />
-            <subHeader value="@string/ashrei" />
-            <subHeader value="@string/shma" />
-        </subHeaders>
+            <part value="@string/we_must_praise" />
+            <part value="@string/eighteen" />
+            <part value="@string/ashrei" />
+            <part value="@string/shma" />
+        </parts>
     </video>
 </videos>

@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--General-->
+    <!-- General -->
     <string name="image_placeholder">שמע ישראל!</string>
     <string name="app_name">Iglu</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">LOREM\nIPSUM</string>
 
-    <!--Prayers-->
+    <!-- Prayers -->
     <string name="shacharit">שחרית</string>
     <string name="minha">מנחה</string>
     <string name="arvit">ערבית</string>
 
-    <!--Parts-->
+    <!-- Parts -->
     <string name="morning_prayer">ברכות הבוקר</string>
     <string name="shma">שמע ישראל</string>
-    <string name="eighteen">שמונה עשרה</string>
+    <string name="eighteen">עמידה</string>
     <string name="we_must_praise">עלינו לשבח</string>
-    <string name="ashrei">אשרי יושבי ביתך</string>
+    <string name="ashrei">אשרי</string>
 
-    <!--Errors-->
+    <!-- Errors -->
     <string name="failed_to_start">The app failed to start! Apparently this version does not work at all…</string>
     <string name="failed_to_start_title">Failed to start</string>
+    <string name="failed_to_find_video">Failed to find video!</string>
 
 </resources>
